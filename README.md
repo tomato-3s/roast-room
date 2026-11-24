@@ -140,9 +140,21 @@ You can build an advisor from public figures, living or historical, with a real 
 
 YouTube transcripts and photos work best with [yt-dlp](https://github.com/yt-dlp/yt-dlp) installed, and PDFs need `pdftotext` ([Poppler](https://poppler.freedesktop.org)). Both are optional: without them, Claude falls back to YouTube's own captions and reads PDFs itself.
 
-## Watch an example first
+## Tell the room who you are
 
-Run `npm start`, open http://localhost:4730, and click **Past sessions**. Three finished councils ship with the repo, so you can see how it works (and download their PDFs) before you run your own.
+Put notes about you and your business in the `context/` folder, once. Every council reads them before it starts, so you never explain yourself twice and the advisors judge your decision against your real situation.
+
+1. Open `context/about-me.md` (a starter copy of `context/_templates/about-me.template.md`) and fill in what you can.
+2. Add more files if you like: `.md` or `.txt` notes about your offers, numbers, team, goals, or past decisions.
+3. After each council the Chair adds a short entry to `context/decision-log.md`, so the next council remembers what you decided and why.
+
+Everything in `context/` except its README and the blank template stays on your computer. Git ignores it, so it never goes to GitHub, even if your copy of the repo is public.
+
+## Past sessions and examples
+
+Run `npm start`, open http://localhost:4730, and click **Past sessions** to replay any council you have run and download its PDF. The list starts empty.
+
+Three finished councils ship in `examples/` so you can see what a debate and a verdict look like. They are samples about made-up businesses, not about you. They are not your past sessions, and no council ever reads them as your history. Each council starts fresh: the only things the Roast Room remembers about you are the notes in `context/` and the entries in `context/decision-log.md`.
 
 ## How it works
 
@@ -165,7 +177,9 @@ If you'd rather type a decision straight into the room, copy `.env.example` to `
 | `.claude/skills/newroaster/` | The `/newroaster` skill and its scripts: fetch sources, check quotes, register a seat |
 | `.claude/agents/` | One agent per advisor (`council-<name>.md`) |
 | `app/` | The room: a zero-dependency Node server, the web page, and the PDF builder |
-| `sessions/` | Your councils (kept out of git) and the three examples |
+| `sessions/` | Your councils (kept out of git) |
+| `context/` | Notes about you and your business, read before every council (kept out of git) |
+| `examples/` | Three sample councils that show the format. Not your history |
 | `build/` | Raw sources `/newroaster` fetched (kept out of git) |
 
 ## About the advisors
