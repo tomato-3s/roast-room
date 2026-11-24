@@ -8,7 +8,7 @@ argument-hint: "[the decision] [--quick] [--all] [--seats hormozi,buffett,...] |
 
 The Roast Room: runs a board meeting on one decision. A board of seats (seven out of the box), one per business pillar, each a sub-agent that reasons and talks the way its expert does, grounded in a brain compiled from that person's videos, essays, letters, talks, and books as they teach them in public. The seats argue across three rounds: open, debate, vote. You act as the **Chair**: you never argue a side, you run the room, keep the score, and write the verdict.
 
-Read once before the first run: `roster.json` (every seat and the default board), `references/seats.md` (picking the board, weights, tensions), `references/round-prompts.md` (what each seat gets), `references/scoring.md` (math and overrides), `references/report-template.md` (output), `references/live-room.md` (the small JSON files the visual room plays). A finished example council lives in `sessions/2026-10-09-example-take-the-seed/`.
+Read once before the first run: `roster.json` (every seat and the default board), `references/seats.md` (picking the board, weights, tensions), `references/round-prompts.md` (what each seat gets), `references/scoring.md` (math and overrides), `references/report-template.md` (output), `references/live-room.md` (the small JSON files the visual room plays). Finished example councils live in `examples/`: they show the format only, are about made-up businesses, and are never the founder's history.
 
 ## Modes
 
@@ -16,7 +16,7 @@ Read once before the first run: `roster.json` (every seat and the default board)
 - **Quick** (`--quick`): four seats, recommended per "Pick the board" and `seats.md`, Rounds 1 and 2, Round 3 only if the scores did not converge. For reversible calls.
 - **Named seats** (`--seats a,b,c`): only those seats, three rounds. Any seat in `roster.json` can be named, on the default board or not.
 - **Everyone** (`--all`): every seat in `roster.json`, up to nine.
-- **Consult** (`ask <seat> ...`): one seat, one answer, using the single-seat prompt. No scoring, no session folder needed. Works for any seat in the roster.
+- **Consult** (`ask <seat> ...`): one seat, one answer, using the single-seat prompt. No scoring, no session folder needed. Works for any seat in the roster. Read `context/` first (see "Context lookup") and put a short summary of who the founder is into the question you pass to the seat.
 - **Board settings** (`board`): show and change who sits at the table by default. See "Board settings" below. No council runs.
 
 ## Pick the board
@@ -62,14 +62,16 @@ The council is only as good as the brief. Build it from what the user gave you. 
 4. **What success looks like** and the time horizon.
 5. **Which way the founder is leaning, and why** (the council tests the lean, it does not echo it).
 
-Context lookup: if this project holds notes about the founder's business (a `CLAUDE.md`, a `business.md`, or similar), read them for real numbers before asking.
+Context lookup: before asking anything, read what the founder has already told the room. Read every `.md` and `.txt` file in `context/` at the project root (skip `README.md` and `_templates/`), plus any `CLAUDE.md` or `business.md` that holds notes about their business. It covers who they are, what they sell, their numbers, their limits, and how they decide. Treat it as known: do not ask again for anything it answers, and mark facts taken from it `(from context)`. Only `context/` counts as what the founder has told the room: never treat `examples/` or the old folders in `sessions/` as context, and do not read them for facts about the founder. If what the founder says now conflicts with the context, trust the founder now and say so in one line. If `context/` holds no notes yet, run as usual and tell the founder once, at the end, that adding notes to `context/` saves them from explaining themselves each time.
 
-Keep the brief under 300 words. Mark every assumption as `(assumed)`.
+Founder context: write a `## Founder context` section at the bottom of `brief.md`, at most 150 words: who the founder is, the business, the numbers that matter to this decision, their limits, and any earlier decision in `context/decision-log.md` that bears on this one. The seats read `brief.md`, so this is how every seat gets it. Leave out anything private that does not bear on the decision.
+
+Keep the brief under 300 words, not counting the Founder context section. Mark every assumption as `(assumed)`.
 
 ## Step 2: Set up the room
 
 - Seat the board (see "Pick the board"). Set a relevance weight per seat at the table (1 to 3) with a one-line reason, per `seats.md`.
-- Create the session folder: `sessions/YYYY-MM-DD-<decision-slug>/` at the project root. Save `brief.md` (the brief, the options, and the weights table) and `council.json` (`live-room.md`).
+- Create the session folder: `sessions/YYYY-MM-DD-<decision-slug>/` at the project root. Save `brief.md` (the brief, the options, the weights table, and the Founder context section) and `council.json` (`live-room.md`).
 - Tell the user once: "Watch it live at http://localhost:4730" (the Roast Room plays the council as these files land; it is optional and the council runs the same without it).
 
 ## Step 3: Round 1, opening positions
@@ -104,6 +106,10 @@ Quick mode skips this round when the Round 2 spread on the top option is 3 or le
 2. Compute the numbers from the last round's cards per `scoring.md`, apply the overrides, and write `verdict.md` from `report-template.md`. Write `verdict.json` last (`live-room.md`); it tells the room the council is over.
 3. Show the user a short verdict in chat, not the full report: the label and the call, the option scores on one line, the three arguments that carried the room (one line each, with the seat), the strongest objection (one line, with the seat), and the next steps (at most three). Then the path to `verdict.md` for the full detail, one line saying the branded PDF is one click away ("Download PDF" on the verdict at http://localhost:4730), and one line offering a follow-up with any seat or a rerun with new facts. Keep it under 200 words: a founder should be able to decide from it at a glance.
 
+## Step 8: Log the decision
+
+After the verdict, add an entry to `context/decision-log.md` (create the file, and the `context/` folder, if missing): the date, the decision in one line, the verdict label and recommended option, the conditions, and the date to revisit. Three to five lines per entry, newest last. Tell the user in one line: "Logged to context/decision-log.md, so the next council remembers this one." Skip the log for consults and for `board`. The log stays on the founder's machine; `.gitignore` keeps `context/` out of git.
+
 ## Chair rules
 
 - You never argue a side and never add your own pillar. If no seat raised an important point, put it to the closest seat as a crux in the next round instead of inserting it yourself.
@@ -134,4 +140,5 @@ Run the same protocol sequentially yourself. For each seat, read `.claude/agents
 - `scripts/check_quotes.py`: verifies every attributed quote in a session against the brains.
 - `roster.json`: every seat (key, name, pillar, the question it owns, scorecard dimension, color) and the default board. `/newroaster` adds seats; `/roast-room board` changes the board.
 - Agents: `.claude/agents/council-<key>.md`, one per seat in the roster.
+- `context/`: the founder's own notes (who they are, the business, past decisions) and `decision-log.md`. Read before every council. Kept out of git.
 - The room app: `app/` (start at the project `README.md`).

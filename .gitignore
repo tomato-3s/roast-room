@@ -5,7 +5,12 @@ node_modules/
 # /newroaster's raw sources (transcripts, essays, notes) stay on your machine; only the brain ships
 build/
 
-# your councils stay on your machine; the examples ship with the repo
+# your councils stay on your machine
 sessions/*
 !sessions/.gitkeep
-!sessions/*example*/
+
+# your own notes (who you are, your business, past decisions) stay on your machine; only the README and the blank template ship
+context/*
+!context/README.md
+!context/_templates/
+!context/_templates/**
